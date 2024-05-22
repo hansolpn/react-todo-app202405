@@ -6,7 +6,12 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import React, { useCallback, useReducer } from 'react';
+import React, {
+  useCallback,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
 import {
   API_BASE_URL,
   USER,
@@ -14,8 +19,12 @@ import {
 import { initialState, joinReducer } from './joinReducer';
 import { debounce } from 'lodash';
 import { useNavigate } from 'react-router-dom';
+import '../../scss/Join.scss';
 
 const Join = () => {
+  // useRef를 사용해서 태그 참조하기
+  const $fileTag = useRef();
+
   // 리다이렉트 효과 사용하기
   const navigate = useNavigate();
 
@@ -183,27 +192,49 @@ const Join = () => {
   };
 
   // 회원 가입 처리 서버 요청
-  const fetchSignUpPost = () => {
-    fetch(`${API_BASE_URL}${USER}`, {
+  const fetchSignUpPost = async () => {
+    /*
+      기존 회원가입은 단순히 텍스트를 객체로 모은 후 JSON으로 변환해서 요청 보내주면 끝.
+      이제는 프로필 이미지가 추가됨. -> 파일 첨부 요청은 multipart/form-data로 전송해야 함.
+      FormData 객체를 활용해서 Content-type을 multipart/form-data로 지정한 후 전송하려 함.
+      그럼 JSON 데이터는? Content-type이 application/json이다. 
+      Content-type이 서로 다른 데이터를 한번에 FormData에 감싸서 보내면 
+      415(unsupported Media Type) 에러가 발생함.
+      그렇다면 -> JSON을 Blob으로 바꿔서 함께 보내자. 
+      Blob은 이미지, 사운드, 비디오 같은 멀티미디어 파일을 바이트 단위로 쪼개어 파일 손상을 방지하게 
+      해 주는 타입. -> multipart/form-data에도 허용됨.
+    */
+
+    // JSON을 Blob 타입으로 변경.
+    const userJsonBlob = new Blob(
+      [JSON.stringify(userValue)],
+      { type: 'application/json' },
+    );
+
+    // 이미지 파일과 회원정보 JSON을 하나로 묶어서 보낼 예정.
+    // FormData 객체를 활용해서.
+    const userFormData = new FormData();
+    userFormData.append('user', userJsonBlob);
+    userFormData.append(
+      'profileImage',
+      $fileTag.current.files[0],
+    );
+
+    const res = await fetch(API_BASE_URL + USER, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(userValue),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        alert(
-          `${data.userName}(${data.email})님 회원가입에 성공했습니다.`,
-        );
-        // 로그인 페이지로 리다이렉트
-        // window.location.href = '/login';
-        navigate('/login');
-      })
-      .catch((err) => {
-        console.log('err: ', err);
-        alert(
-          '서버와의 통신이 원활하지 않습니다. 관리자에게 문의하세요.',
-        );
-      });
+      body: userFormData,
+    });
+
+    if (res.status === 200) {
+      const data = await res.json();
+      alert(
+        `${data.userName}(${data.email})님 회원가입에 성공했습니다.`,
+      );
+      // 로그인 페이지로 리다이렉트
+      navigate('/login');
+    } else {
+      alert('서버와의 통신이 원활하지 않습니다.');
+    }
   };
 
   // 회원 가입 버튼 클릭 이벤트 핸들러
@@ -218,6 +249,42 @@ const Join = () => {
     }
   };
 
+  // 이미지 파일 상태 변수
+  const [imgFile, setImgFile] = useState(null);
+
+  // 이미지 파일을 선택했을 때 썸네일 뿌리는 핸들러
+  const showThumbnailHandler = (e) => {
+    // 첨부된 파일 정보
+    const file = $fileTag.current.files[0];
+
+    // 첨부한 파일 이름을 얻은 후 확장자만 추출. (소문자로 일괄 변경)
+    const fileExt = file.name
+      .slice(file.name.indexOf('.') + 1)
+      .toLowerCase();
+
+    if (
+      fileExt !== 'jpg' &&
+      fileExt !== 'png' &&
+      fileExt !== 'jpeg' &&
+      fileExt !== 'gif'
+    ) {
+      alert(
+        '이미지 파일(jpg, png, jpeg, gif)만 등록이 가능합니다!',
+      );
+      // 형식에 맞지 않는 파일을 첨부한 것이 파악됐다면, input의 상태도 원래대로 돌려놓아야 한다.
+      // 그렇지 않으면 잘못된 파일을 input 태그가 여전히 기억하게 됨 -> 서버 요청 시 에러 유발!
+      $fileTag.current.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+
+    reader.onloadend = () => {
+      setImgFile(reader.result);
+    };
+  };
+
   return (
     <Container
       component='main'
@@ -230,6 +297,34 @@ const Join = () => {
             <Typography component='h1' variant='h5'>
               계정 생성
             </Typography>
+          </Grid>
+          <Grid item xs={12}>
+            <div
+              className='thumbnail-box'
+              onClick={() => $fileTag.current.click()}
+            >
+              <img
+                src={
+                  imgFile ||
+                  require('../../assets/img/image-add.png')
+                }
+                alt='profile'
+              />
+            </div>
+            <label
+              className='signup-img-label'
+              htmlFor='profile-img'
+            >
+              프로필 이미지 추가
+            </label>
+            <input
+              id='profile-img'
+              type='file'
+              style={{ display: 'none' }}
+              accept='image/*'
+              ref={$fileTag}
+              onChange={showThumbnailHandler}
+            />
           </Grid>
           <Grid item xs={12}>
             <TextField
