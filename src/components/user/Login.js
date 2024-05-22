@@ -17,6 +17,7 @@ import {
 import AuthContext from '../../utils/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import CustomSnackBar from '../layout/CustomSnackBar';
+import { KAKAO_AUTH_URL } from '../../config/kakao-config';
 
 const Login = () => {
   const REQUEST_URL = BASE + USER + '/signin';
@@ -149,6 +150,15 @@ const Login = () => {
                 >
                   로그인
                 </Button>
+              </Grid>
+              <Grid item xs={12}>
+                <a href={KAKAO_AUTH_URL}>
+                  <img
+                    style={{ width: '100%' }}
+                    alt='kakaobtn'
+                    src={require('../../assets/img/kakao_login_medium_wide.png')}
+                  />
+                </a>
               </Grid>
             </Grid>
           </form>
