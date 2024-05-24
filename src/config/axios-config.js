@@ -76,7 +76,7 @@ axiosInstance.interceptors.response.use(
           // 실패한 원본 요청 정보에서 Authorization의 값을 새 토큰으로 바꿔주자.
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
           // axios 인스턴스의 기본 header Authorization도 최신 토큰으로 바꿔놓자.
-          axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+          axiosInstance.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
 
           // axiosInstance를 사용해서 다시 한 번 원본의 요청을 보낼 거고, 응답값을 원래 호출한 곳으로 리턴.
           return axiosInstance(originalRequest);
