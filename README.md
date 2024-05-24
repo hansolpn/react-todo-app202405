@@ -42,6 +42,7 @@ $ npm install reactstrap bootstrap
 $ npm install @mui/material @emotion/react @emotion/styled
 $ npm install @mui/icons-material
 $ npm install react-router-dom
+$ npm install axios // 비동기 통신 라이브러리 (fetch보다 더 많은 기능을 제공)
 ```
 
 ## 리액트 라우터 설정
