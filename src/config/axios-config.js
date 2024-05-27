@@ -9,7 +9,6 @@ import {
   TODO,
   USER,
 } from './host-config';
-import { useNavigate } from 'react-router-dom';
 
 const TODO_URL = BASE + TODO;
 const USER_URL = BASE + USER;
