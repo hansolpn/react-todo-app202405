@@ -59,24 +59,22 @@ const Login = () => {
       }),
     });
     */
-    const res = await axios.post(REQUEST_URL, {
-      email: $email.value,
-      password: $password.value,
-    });
+    try {
+      const res = await axios.post(REQUEST_URL, {
+        email: $email.value,
+        password: $password.value,
+      });
 
-    if (res.status === 400) {
-      const text = await res.text();
-      alert(text);
-      return;
+      const { token, userName, role } = await res.data;
+
+      // Context API를 사용하여 로그인 상태를 업데이트 합니다.
+      onLogin(token, userName, role);
+
+      // 홈으로 리다이렉트
+      redirection('/');
+    } catch (error) {
+      alert(error.response.data);
     }
-
-    const { token, userName, role } = await res.data;
-
-    // Context API를 사용하여 로그인 상태를 업데이트 합니다.
-    onLogin(token, userName, role);
-
-    // 홈으로 리다이렉트
-    redirection('/');
   };
 
   const loginHandler = (e) => {
