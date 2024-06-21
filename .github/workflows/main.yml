@@ -5,13 +5,23 @@ on: push
 jobs:
   cypress-run:
     runs-on: ubuntu-22.04
+    env:
+        CI: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       # Install npm dependencies, cache them correctly
       # and run all Cypress tests
+      - name: build
+        uses: actions/cache@v4
+        with: 
+            path: |
+              ~/.cache/Cypress
+              node_modules
+            key: my-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - run: npm install && npm run build
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-          build: npm run build
+          install: false
           start: npm start
