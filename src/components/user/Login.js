@@ -71,7 +71,7 @@ const Login = () => {
       onLogin(token, userName, role);
 
       // 홈으로 리다이렉트
-      redirection('/');
+      redirection('/todo');
     } catch (error) {
       alert(error.response.data);
     }
