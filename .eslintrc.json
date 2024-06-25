@@ -6,7 +6,8 @@
     "extends": [
         "standard",
         "plugin:react/recommended",
-        "plugin:prettier/recommended"
+        "plugin:prettier/recommended",
+        "plugin:cypress/recommended"
     ],
     "parserOptions": {
         "ecmaVersion": "latest",
