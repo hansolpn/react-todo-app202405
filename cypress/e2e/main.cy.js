@@ -21,7 +21,7 @@ describe('메인화면', () => {
       },
     );
     localStorage.setItem('ACCESS_TOKEN', '1');
-    localStorage.setItem('LOGIN_USERNAME', 'test user');
+    localStorage.setItem('LOGIN_USERNAME', '홍길동');
     localStorage.setItem('USER_ROLE', 'COMMON');
 
     cy.visit('http://localhost:3000/todo');

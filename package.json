@@ -25,6 +25,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "cy:start": "start-server-and-test start http://localhost:3000 cy:open",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
@@ -63,6 +64,7 @@
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-react": "^7.34.1",
     "globals": "^15.1.0",
-    "prettier": "^3.2.5"
+    "prettier": "^3.2.5",
+    "start-server-and-test": "^2.0.4"
   }
 }
